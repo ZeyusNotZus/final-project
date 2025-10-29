@@ -9,7 +9,7 @@ world1 = [
     ["T", ".", ".", ".", ".", ".", "+", ".", "T"],
     ["T", "x", "*", ".", "L", "T", ".", ".", "T"],
     ["T", ".", ".", ".", ".", ".", ".", ".", "T"],
-    ["T", ".", "~", "~", ".", ".", ".", ".", "T"],
+    ["T", ".", "~", "~", "R", ".", ".", ".", "T"],
     ["T", ".", "~", "~", ".", ".", ".", ".", "T"],
     ["T", "T", "T", "T", "T", "T", "T", "T", "T"]
 ]
@@ -42,6 +42,7 @@ game_data = {
 game_state = "playing"
 
 def reset():
+    game_state = "playing"
     current_world = world1.copy()
     game_data["on"] = "."
     game_data["inventory"] = [".", "."]
@@ -65,12 +66,14 @@ while True:
     clear_screen()
 
     if "L" not in (x for y in current_world for x in y):
+        game_state = "gameover"
         print("\n".join("".join(row) for row in current_world))
         print()
         print(f"Player tile: {game_data["on"]}")
         print(f"Inventory: {game_data["inventory"][0]}\n")
         print("Game Over x_x\n")
-        break
+        print("Reset (R)\n Quit (Q)")
+        
 
     print("\n".join("".join(row) for row in current_world))
     print()
@@ -78,26 +81,25 @@ while True:
     print(f"Inventory: {game_data["inventory"][0]}\n")
 
     
+    if game_state == "playing"
+        action = input("Move (W, A, S, D) \nPickup or Drop (P)\nReset (R) \nQuit (Q): ").lower()
+        if "q" in action:
+           break
 
-    action = input("Move (W, A, S, D) \nPickup or Drop (P)\nReset (R) \nQuit (Q): ").lower()
-    if "q" in action:
-       break
-
-
-    for act in action:
-        if act not in player_input:
-            break
-        elif act == "r":
-            reset()
-        elif act == "p" and game_data["on"] in pickup and game_data["inventory"][0] == ".":
-            game_data["inventory"][1] = game_data["inventory"][0]
-            game_data["inventory"][0] = game_data["on"]
-            game_data["on"] = game_data["inventory"][1]
-        elif act != "p":
-            player_row, player_col = find_player(current_world, "L")
-            current_world[player_row][player_col] = game_data["on"]
-            new_r, new_c = player_move((player_row, player_col), player_input[act],current_world)
-            game_data["on"] = current_world[new_r][new_c]
-            if game_data["on"] == "~":
+        for act in action:
+            if act not in player_input:
                 break
-            current_world[new_r][new_c] = "L"
+            elif act == "r":
+                reset()
+            elif act == "p" and game_data["on"] in pickup and game_data["inventory"][0] == ".":
+                game_data["inventory"][1] = game_data["inventory"][0]
+                game_data["inventory"][0] = game_data["on"]
+                game_data["on"] = game_data["inventory"][1]
+            elif act != "p":
+                player_row, player_col = find_player(current_world, "L")
+                current_world[player_row][player_col] = game_data["on"]
+                new_r, new_c = player_move((player_row, player_col), player_input[act],current_world)
+                game_data["on"] = current_world[new_r][new_c]
+                if game_data["on"] == "~":
+                    break
+                current_world[new_r][new_c] = "L"
