@@ -42,8 +42,37 @@ def find_object(world, rep):
 def player_move(pos, direction, world):
     r, c = pos
     dr, dc = direction
+    target_r, target_c = r + dr, c + dc
 
+    #Out of bounds
+    if not (0 <= target_r < n_rows and 0 <= target_c < n_cols):
+        return r, c, current_world[r][c]
+    
+    #Checking Target Tile
+    target_tile = current_world[target_r][target_c]
 
+    #Regular Movement
+    if target_tile in valid_tiles:
+        return target_r, target_c, target_tile
+    
+    #Chopping Trees
+    if target_tile == "T" and game_data["inventory"] == "x":
+        current_world[target_r][target_c] = "."
+        game_data["inventory"] = "."
+        return target_r, target_c, "."
+    
+    #Burning Trees
+    elif target_tile == "T" and game_data["inventory"] == "*":
+        def burn(r, c):
+            if 0 <= r < n_rows and 0 <= c < n_cols and world[r][c] == "T":
+                world[r][c] = "."
+                for dr, dc in [(-1,0),(1,0),(0,-1),(0,1)]:
+                    burn(r + dr, c + dc)    
+
+        burn(target_r, target_c)
+        game_data["inventory"] = "."
+        return target_r, target_c, "."
+        
     #When pushing rocks
     if (0 <= r + dr < n_rows) and (0 <= c + dc < n_cols) and world[r + dr][c + dc] == "R":
         if (0 <= r + 2*dr < n_rows) and (0 <= c + 2*dc < n_cols) and world[r + 2*dr][c + 2*dc] in (".", "_", "~"):
@@ -63,12 +92,7 @@ def player_move(pos, direction, world):
         else:
             return r, c, current_world[r][c]  
 
-
-    #Regular Movement
-    elif (0 <= r + dr < n_rows) and (0 <= c + dc < n_cols) and world[r + dr][c + dc] in valid_tiles:
-        return r + dr, c + dc, current_world[r + dr][c + dc]
-    else:
-        return r, c, current_world[r][c] 
+    return r, c, current_world[r][c]  
 
 #Independent Variables
 current_world = [row.copy() for row in world1]
